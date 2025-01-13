@@ -5,7 +5,7 @@ import { useLoginMutation } from "../redux/features/auth/authApi";
 import { useAppDispatch } from "../redux/hooks";
 import { setUser } from "../redux/features/auth/authSlice";
 import { verifyToken } from "../utils/verifyToken";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { toast } from "sonner";
 import UniForm from "../components/form/UniForm";
 import FormInput from "../components/form/FormInput";
@@ -42,11 +42,14 @@ const Login = () => {
             <div className="absolute inset-0 bg-black opacity-10"></div>
 
             <div className="relative flex justify-center items-center pt-10">
+
                 <Row className="flex flex-col items-center" justify="center" align="middle">
-                    <UniForm className="px-12 md py-8 rounded-lg shadow-2xl" onSubmit={onSubmit}>
+                    <UniForm className="bg-transparent/5 px-12 md py-8 rounded-lg shadow-2xl" onSubmit={onSubmit}>
+                        <h2 className="text-center text-2xl text-black mb-5 font-semibold">Login to Chat App</h2>
                         <FormInput type="text" name="email" label="Email" />
                         <FormInput type="password" name="password" label="Password" />
-                        <Button htmlType="submit">Login</Button>
+                        <p className="-mt-5 text-xs text-right mb-5">Don't have an account? <span className="text-blue-500 hover:underline cursor-pointer"><Link to="/register">Sign up</Link></span></p>
+                        <Button className="bg-[#375963] text-white" htmlType="submit">Login</Button>
                     </UniForm>
                 </Row>
             </div>

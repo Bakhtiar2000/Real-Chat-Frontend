@@ -2,7 +2,7 @@
 // import Spline from '@splinetool/react-spline';
 import { Button, Row } from "antd";
 import { useAppDispatch } from "../redux/hooks";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { toast } from "sonner";
 import UniForm from "../components/form/UniForm";
 import FormInput from "../components/form/FormInput";
@@ -38,11 +38,12 @@ const Register = () => {
             <div className="mt-10">
                 <h2 className="text-center text-2xl md:text-4xl text-black mb-5 md:mb-10 font-semibold">Register to Chat App</h2>
                 <Row className="flex flex-col items-center" justify="center" align="middle">
-                    <UniForm className="bg-[#E1E1E1] text-white px-7 md:px-12 md py-5 md:py-8 rounded-lg shadow-lg md:shadow-2xl" onSubmit={onSubmit}>
+                    <UniForm className="bg-[#E1E1E1] px-7 md:px-12 md py-5 md:py-8 rounded-lg shadow-lg md:shadow-2xl" onSubmit={onSubmit}>
                         <FormInput type="text" name="name" label="Name*" />
                         <FormInput type="text" name="email" label="Email*" />
                         <FormInput type="password" name="password" label="Password*" />
                         <FormInput type="text" name="img" label="Image Link" />
+                        <p className="-mt-5 text-xs text-right mb-5">Already have an account? <span className="text-blue-500 hover:underline cursor-pointer"><Link to="/login">Login</Link></span></p>
                         <Button className="bg-[#375963] text-white" htmlType="submit">Register</Button>
                     </UniForm>
                 </Row>
