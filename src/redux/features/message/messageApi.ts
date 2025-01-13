@@ -31,9 +31,9 @@ type TResponseRedux<T> = TResponse<T> & BaseQueryApi;
 const message = baseApi.injectEndpoints({
     endpoints: (builder) => ({
 
-        //-----------------Gte Users-----------------
+        //-----------------Get Users-----------------
         getUsers: builder.query({
-            query: (args) => ({
+            query: () => ({
                 url: "/messages/users",
                 method: "GET",
             }),

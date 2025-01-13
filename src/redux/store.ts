@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer, { logout } from "./features/auth/authSlice";
+import messageReducer from "./features/message/messageSlice";
 import { baseApi } from "./api/baseApi";
 import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
 import {
@@ -33,6 +34,7 @@ export const store = configureStore({
     reducer: {
         [baseApi.reducerPath]: baseApi.reducer,
         auth: persistAuthReducer,
+        message: messageReducer,
     },
     middleware: (getDefaultMiddlewares) =>
         getDefaultMiddlewares({
