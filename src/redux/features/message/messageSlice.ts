@@ -1,4 +1,5 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
+import { RootState } from "../../store";
 
 interface MessageState {
     messages: any[];
@@ -16,16 +17,16 @@ const messagesSlice = createSlice({
     name: "messages",
     initialState,
     reducers: {
-        setUsers: (state, action: PayloadAction<any[]>) => {
+        setUsers: (state, action) => {
             state.users = action.payload;
         },
-        setSelectedUser: (state, action: PayloadAction<any>) => {
+        setSelectedUser: (state, action) => {
             state.selectedUser = action.payload;
         },
-        setMessages: (state, action: PayloadAction<any[]>) => {
+        setMessages: (state, action) => {
             state.messages = action.payload;
         },
-        addMessage: (state, action: PayloadAction<any>) => {
+        addMessage: (state, action) => {
             state.messages.push(action.payload);
         },
     },
@@ -37,5 +38,8 @@ export const {
     setMessages,
     addMessage,
 } = messagesSlice.actions;
-
 export default messagesSlice.reducer;
+
+export const useMessages = (state: RootState) => state.message.messages;
+export const useUsers = (state: RootState) => state.message.users;
+export const useSelectedUser = (state: RootState) => state.message.selectedUser;
