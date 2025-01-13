@@ -14,7 +14,7 @@ const initialState: MessageState = {
 };
 
 const messagesSlice = createSlice({
-    name: "messages",
+    name: "message",
     initialState,
     reducers: {
         setUsers: (state, action) => {

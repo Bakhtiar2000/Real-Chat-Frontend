@@ -2,9 +2,23 @@ import { Link } from "react-router-dom";
 import { LogOut, MessageSquare, Settings, User } from "lucide-react";
 import { useAppDispatch } from "../redux/hooks";
 import { logout } from "../redux/features/auth/authSlice";
+import { disconnectSocket } from "../socket/socket.api";
+import toast from "react-hot-toast";
+
 
 const Navbar = () => {
   const dispatch = useAppDispatch();
+
+  const logoutUser = () => {
+    try {
+      dispatch(logout())
+      toast.success("Logged out successfully");
+      disconnectSocket()
+    } catch (error) {
+      toast.error(error.response.data.message);
+    }
+  }
+
   return (
     <header
       className="bg-base-100 border-b border-base-300 fixed w-full top-0 z-40 
@@ -40,7 +54,7 @@ const Navbar = () => {
                   <span className="hidden sm:inline">Profile</span>
                 </Link>
 
-                <button className="flex gap-2 items-center" onClick={dispatch(logout)}>
+                <button className="flex gap-2 items-center" onClick={logoutUser}>
                   <LogOut className="size-5" />
                   <span className="hidden sm:inline">Logout</span>
                 </button>

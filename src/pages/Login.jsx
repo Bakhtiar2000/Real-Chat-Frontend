@@ -9,10 +9,16 @@ import { useNavigate, Link } from "react-router-dom";
 import { toast } from "sonner";
 import UniForm from "../components/form/UniForm";
 import FormInput from "../components/form/FormInput";
+import { connectSocket } from "../socket/socket.api";
 
 const Login = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
+
+    const defaultValues = {
+        email: "rakib@gmail.com",
+        password: "12345"
+    }
 
     const [login] = useLoginMutation();
     const onSubmit = async (data) => {
@@ -23,6 +29,7 @@ const Login = () => {
             const res = await login(data).unwrap();
             const user = verifyToken(res.data.accessToken);
             dispatch(setUser({ user: user, token: res.data.accessToken }));
+            connectSocket()
             toast.success("logged In", { id: loginToastId, duration: 2000 });
             navigate(`/`);
         } catch (error) {
@@ -44,7 +51,7 @@ const Login = () => {
             <div className="relative flex justify-center items-center pt-10">
 
                 <Row className="flex flex-col items-center" justify="center" align="middle">
-                    <UniForm className="bg-transparent/5 px-12 md py-8 rounded-lg shadow-2xl" onSubmit={onSubmit}>
+                    <UniForm className="bg-transparent/5 px-12 md py-8 rounded-lg shadow-2xl" onSubmit={onSubmit} defaultValues={defaultValues}>
                         <h2 className="text-center text-2xl text-black mb-5 font-semibold">Login to Chat App</h2>
                         <FormInput type="text" name="email" label="Email" />
                         <FormInput type="password" name="password" label="Password" />

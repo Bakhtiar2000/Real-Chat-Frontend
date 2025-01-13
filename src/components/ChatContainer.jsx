@@ -1,31 +1,31 @@
-import { useChatStore } from "../store/useChatStore";
 import { useEffect, useRef } from "react";
-
 import ChatHeader from "./ChatHeader";
 import MessageInput from "./MessageInput";
 import MessageSkeleton from "./skeletons/MessageSkeleton";
-import { useAuthStore } from "../store/useAuthStore";
-import { formatMessageTime } from "../lib/utils";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { setMessages, useMessages, useSelectedUser } from "../redux/features/message/messageSlice";
+import { subscribeToMessages, unsubscribeFromMessages } from "../socket/socket.api";
+import { useGetMessagesQuery } from "../redux/features/message/messageApi";
+import { useCurrentUser } from "../redux/features/auth/authSlice";
+import { formatMessageTime } from "../utils/utils";
+
 
 const ChatContainer = () => {
-  const {
-    messages,
-    getMessages,
-    isMessagesLoading,
-    selectedUser,
-    subscribeToMessages,
-    unsubscribeFromMessages,
-  } = useChatStore();
-  const { authUser } = useAuthStore();
+  const selectedUser = useAppSelector(useSelectedUser);
+  const authUser = useAppSelector(useCurrentUser);
   const messageEndRef = useRef(null);
+  const dispatch = useAppDispatch()
+  const { data: messagesData, isLoading: messagesLoading, isFetching: messagesFetching } = useGetMessagesQuery(selectedUser._id);
+  dispatch(setMessages({ messages: messagesData }))
+  const messages = useAppSelector(useMessages);  // Could be avoided maybe if used messagesData directly
 
+  console.log(messages, selectedUser, authUser)
   useEffect(() => {
-    getMessages(selectedUser._id);
-
-    subscribeToMessages();
-
+    if (selectedUser) {
+      subscribeToMessages();
+    }
     return () => unsubscribeFromMessages();
-  }, [selectedUser._id, getMessages, subscribeToMessages, unsubscribeFromMessages]);
+  }, [selectedUser._id, messagesFetching, subscribeToMessages, unsubscribeFromMessages]);
 
   useEffect(() => {
     if (messageEndRef.current && messages) {
@@ -33,7 +33,7 @@ const ChatContainer = () => {
     }
   }, [messages]);
 
-  if (isMessagesLoading) {
+  if (messagesLoading) {
     return (
       <div className="flex-1 flex flex-col overflow-auto">
         <ChatHeader />
@@ -54,7 +54,7 @@ const ChatContainer = () => {
             className={`chat ${message.senderId === authUser._id ? "chat-end" : "chat-start"}`}
             ref={messageEndRef}
           >
-            <div className=" chat-image avatar">
+            <div className="chat-image avatar">
               <div className="size-10 rounded-full border">
                 <img
                   src={

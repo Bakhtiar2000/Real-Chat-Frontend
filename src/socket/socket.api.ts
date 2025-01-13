@@ -3,9 +3,8 @@ import { setOnlineUsers, setSocket, useCurrentUser, useSocket, clearSocket } fro
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { addMessage, setSelectedUser, useSelectedUser } from "../redux/features/message/messageSlice";
 
-const dispatch = useAppDispatch();
-
 export const connectSocket = () => {
+    const dispatch = useAppDispatch();
     const user = useAppSelector(useCurrentUser);
     const socket = useAppSelector(useSocket);
 
@@ -18,15 +17,15 @@ export const connectSocket = () => {
     });
 
     newSocket.connect();
-    dispatch(setSocket(newSocket));
+    dispatch(setSocket({ socket: newSocket }));
 
     newSocket.on("getOnlineUsers", (userIds) => {
-        dispatch(setOnlineUsers(userIds));
+        dispatch(setOnlineUsers({ onlineUsers: userIds }));
     });
 };
 
 export const disconnectSocket = () => {
-    ;
+    const dispatch = useAppDispatch();
     const socket = useAppSelector(useSocket);
 
     if (socket?.connected) {
@@ -36,6 +35,7 @@ export const disconnectSocket = () => {
 };
 
 export const subscribeToMessages = () => {
+    const dispatch = useAppDispatch();
     const selectedUser = useAppSelector(useSelectedUser);
     const socket = useAppSelector(useSocket);
     if (!selectedUser || !socket) return;
@@ -43,7 +43,7 @@ export const subscribeToMessages = () => {
     socket.on("newMessage", (newMessage) => {
         const isMessageSentFromSelectedUser = newMessage.senderId === selectedUser._id;
         if (!isMessageSentFromSelectedUser) return;
-        else dispatch(addMessage(newMessage));
+        else dispatch(addMessage({ messages: newMessage }));
     });
 };
 
@@ -54,6 +54,6 @@ export const unsubscribeFromMessages = () => {
     }
 };
 
-export const setSelectedUserInStore = (selectedUser: any) => {
-    dispatch(setSelectedUser(selectedUser));
-};
+// export const setSelectedUserInStore = (selectedUser: any) => {
+//     dispatch(setSelectedUser(selectedUser));
+// };
