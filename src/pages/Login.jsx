@@ -2,19 +2,22 @@
 // import Spline from '@splinetool/react-spline';
 import { Button, Row } from "antd";
 import { useLoginMutation } from "../redux/features/auth/authApi";
-import { useAppDispatch } from "../redux/hooks";
-import { setUser } from "../redux/features/auth/authSlice";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { setUser, useCurrentUser, useSocket } from "../redux/features/auth/authSlice";
 import { verifyToken } from "../utils/verifyToken";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "sonner";
 import UniForm from "../components/form/UniForm";
 import FormInput from "../components/form/FormInput";
 import { connectSocket } from "../socket/socket.api";
+import { useSelector } from "react-redux";
+import { useEffect } from "react";
 
 const Login = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
-
+    const socket = useAppSelector(useSocket)  // Assuming socket is stored in Redux
+    const user = useAppSelector(useCurrentUser);
     const defaultValues = {
         email: "rakib@gmail.com",
         password: "12345"
@@ -29,7 +32,7 @@ const Login = () => {
             const res = await login(data).unwrap();
             const user = verifyToken(res.data.accessToken);
             dispatch(setUser({ user: user, token: res.data.accessToken }));
-            connectSocket()
+            connectSocket(user, socket);
             toast.success("logged In", { id: loginToastId, duration: 2000 });
             navigate(`/`);
         } catch (error) {
@@ -37,6 +40,24 @@ const Login = () => {
             toast.error("Something went wrong", { id: loginToastId, duration: 2000 });
         }
     };
+
+    useEffect(() => {
+        if (user && socket) {
+            if (!socket.connected) {
+                console.log("Socket is not connected. Connecting...");
+                connectSocket(dispatch, user, socket);
+            } else {
+                console.log("Socket is already connected");
+            }
+        }
+
+        // Cleanup socket connection if needed when component unmounts
+        return () => {
+            if (socket?.connected) {
+                socket.disconnect();
+            }
+        };
+    }, [dispatch, user, socket]);
     return (
         <div className="relative w-full h-screen">
             <div

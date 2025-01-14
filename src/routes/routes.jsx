@@ -5,8 +5,7 @@ import MainLayout from "../layouts/MainLayout";
 import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
-
-// const baseURL = "http://localhost:5000/"
+import ProtectedRoute from "../layouts/ProtectedRoute";
 
 export const router = createBrowserRouter([
     {
@@ -15,7 +14,7 @@ export const router = createBrowserRouter([
         children: [
             {
                 path: "/",
-                element: <Home />
+                element: <ProtectedRoute><Home /></ProtectedRoute>
             },
             {
                 path: "/login",

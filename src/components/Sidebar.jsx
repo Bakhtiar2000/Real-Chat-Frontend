@@ -1,31 +1,33 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 import { Users } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { useGetUsersQuery } from "../redux/features/message/messageApi";
-import { setUsers, useSelectedUser, useUsers } from "../redux/features/message/messageSlice";
+import { setSelectedUser, useSelectedUser } from "../redux/features/message/messageSlice";
 import { useOnlineUsers } from "../redux/features/auth/authSlice";
 
 const Sidebar = () => {
-  // const { getUsers } = useChatStore();
-  const dispatch = useAppDispatch()
+  const dispatch = useAppDispatch();
   const onlineUsers = useAppSelector(useOnlineUsers);
-  const { data: usersData, isLoading: usersLoading, isFetching: usersFetching } = useGetUsersQuery(undefined);
-  dispatch(setUsers({ users: usersData }))
-  const users = useAppSelector(useUsers);
+  const { data: users, isLoading: usersLoading, isFetching: usersFetching } = useGetUsersQuery(undefined);
 
+  const selectedUser = useAppSelector(useSelectedUser);  // Retrieve selected user from Redux state
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
 
-  // TODO: FIX
-  // useEffect(() => {
-  //   getUsers();
-  // }, [getUsers]);
-
   const filteredUsers = showOnlineOnly
-    ? users.filter((user) => onlineUsers.includes(user._id))
+    ? users?.data?.filter((user) => onlineUsers.includes(user._id))
     : users;
 
+  console.log(users?.data, filteredUsers?.data);
+
   if (usersLoading) return <SidebarSkeleton />;
+
+  // Optimized dispatch when selecting a user
+  const handleSelectUser = (user) => {
+    if (selectedUser?._id !== user._id) {
+      dispatch(setSelectedUser({ selectedUser: user }));
+    }
+  };
 
   return (
     <aside className="h-full w-20 lg:w-72 border-r border-base-300 flex flex-col transition-all duration-200">
@@ -50,15 +52,13 @@ const Sidebar = () => {
       </div>
 
       <div className="overflow-y-auto w-full py-3">
-        {filteredUsers.map((user) => (
+        {filteredUsers?.data?.map((user) => (
           <button
             key={user._id}
-            onClick={() => dispatch(useSelectedUser({ selectedUser: user }))}
-            className={`
-              w-full p-3 flex items-center gap-3
+            onClick={() => handleSelectUser(user)}
+            className={`w-full p-3 flex items-center gap-3
               hover:bg-base-300 transition-colors
-              ${selectedUser?._id === user._id ? "bg-base-300 ring-1 ring-base-300" : ""}
-            `}
+              ${selectedUser?._id === user._id ? "bg-base-300 ring-1 ring-base-300" : ""}`}
           >
             <div className="relative mx-auto lg:mx-0">
               <img
@@ -84,11 +84,12 @@ const Sidebar = () => {
           </button>
         ))}
 
-        {filteredUsers.length === 0 && (
+        {filteredUsers.data.length === 0 && (
           <div className="text-center text-zinc-500 py-4">No online users</div>
         )}
       </div>
     </aside>
   );
 };
+
 export default Sidebar;

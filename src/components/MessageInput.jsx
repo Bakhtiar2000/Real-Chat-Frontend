@@ -1,19 +1,21 @@
 import { useRef, useState } from "react";
 import { Image, Send, X } from "lucide-react";
 import toast from "react-hot-toast";
-import { useSendMessagesMutation } from "../redux/features/message/messageApi";
-import { useAppDispatch } from "../redux/hooks";
-import { setMessages, useMessages } from "../redux/features/message/messageSlice";
+import { useGetMessagesQuery, useSendMessagesMutation } from "../redux/features/message/messageApi";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { setMessages, useMessages, useSelectedUser } from "../redux/features/message/messageSlice";
 
 const MessageInput = () => {
   const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
   // const { sendMessage } = useChatStore();
-  const [sendMessage] = useSendMessagesMutation();
+  const [sendMessages] = useSendMessagesMutation();
   const dispatch = useAppDispatch()
-  const messages = useAppSelector(useMessages);
+  const selectedUser = useAppSelector(useSelectedUser);
+  const { data: messages, isLoading, isFetching } = useGetMessagesQuery({ userId: selectedUser.selectedUser._id });
 
+  console.log(selectedUser, messages)
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file.type.startsWith("image/")) {
@@ -35,14 +37,20 @@ const MessageInput = () => {
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    try {
-      const res = (await sendMessage({
+    if (!text.trim() && !imagePreview) return;
+
+    const messageData = {
+      userId: selectedUser.selectedUser._id,
+      data: {
         text: text.trim(),
         image: imagePreview,
-      }));
-      console.log(res)
-      dispatch(setMessages({ messages: [...messages, res.data] }))
-      console.log(messages)
+      }
+    }
+    console.log(messageData)
+    try {
+      const res = (await sendMessages(messageData));
+      console.log(messages, res.data?.data)
+      dispatch(setMessages({ messages: [...(messages?.data), res.data?.data] }))
       setText("");
       setImagePreview(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -50,25 +58,6 @@ const MessageInput = () => {
       console.error("Failed to send message:", error);
     };
   }
-  // const handleSendMessage = async (e) => {
-  //   e.preventDefault();
-  //   if (!text.trim() && !imagePreview) return;
-
-  //   try {
-  //     await sendMessage({
-  //       text: text.trim(),
-  //       image: imagePreview,
-  //     });
-
-  //     // Clear form
-  //     setText("");
-  //     setImagePreview(null);
-  //     if (fileInputRef.current) fileInputRef.current.value = "";
-  //   } catch (error) {
-  //     console.error("Failed to send message:", error);
-  //   }
-  // };
-
   return (
     <div className="p-4 w-full">
       {imagePreview && (

@@ -1,21 +1,23 @@
 import { Link } from "react-router-dom";
-import { LogOut, MessageSquare, Settings, User } from "lucide-react";
-import { useAppDispatch } from "../redux/hooks";
-import { logout } from "../redux/features/auth/authSlice";
+import { LogOut, MessageSquare } from "lucide-react";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { logout, useCurrentUser, useSocket } from "../redux/features/auth/authSlice";
 import { disconnectSocket } from "../socket/socket.api";
 import toast from "react-hot-toast";
 
 
 const Navbar = () => {
   const dispatch = useAppDispatch();
+  const authUser = useAppSelector(useCurrentUser);
+  const socket = useAppSelector(useSocket);
 
   const logoutUser = () => {
     try {
       dispatch(logout())
       toast.success("Logged out successfully");
-      disconnectSocket()
+      disconnectSocket(socket)
     } catch (error) {
-      toast.error(error.response.data.message);
+      console.log(error)
     }
   }
 
@@ -31,35 +33,18 @@ const Navbar = () => {
               <div className="size-9 rounded-lg bg-primary/10 flex items-center justify-center">
                 <MessageSquare className="w-5 h-5 text-primary" />
               </div>
-              <h1 className="text-lg font-bold">Chatty</h1>
+              <h1 className="text-lg font-bold">Chat App</h1>
             </Link>
           </div>
 
           <div className="flex items-center gap-2">
-            <Link
-              to={"/settings"}
-              className={`
-              btn btn-sm gap-2 transition-colors
-              
-              `}
-            >
-              <Settings className="w-4 h-4" />
-              <span className="hidden sm:inline">Settings</span>
-            </Link>
-
-            {authUser && (
-              <>
-                <Link to={"/profile"} className={`btn btn-sm gap-2`}>
-                  <User className="size-5" />
-                  <span className="hidden sm:inline">Profile</span>
-                </Link>
-
-                <button className="flex gap-2 items-center" onClick={logoutUser}>
-                  <LogOut className="size-5" />
-                  <span className="hidden sm:inline">Logout</span>
-                </button>
-              </>
-            )}
+            {
+              authUser &&
+              <button className="flex gap-2 items-center" onClick={logoutUser}>
+                <LogOut className="size-5" />
+                <span className="hidden sm:inline">Logout</span>
+              </button>
+            }
           </div>
         </div>
       </div>

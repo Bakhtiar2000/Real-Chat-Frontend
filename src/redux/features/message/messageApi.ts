@@ -47,10 +47,13 @@ const message = baseApi.injectEndpoints({
 
         //-----------------Get Messages-----------------
         getMessages: builder.query({
-            query: (args) => ({
-                url: `/messages/${args.userId}`,
-                method: "GET",
-            }),
+            query: (args) => {
+                console.log(args.userId)
+                return {
+                    url: `/messages/${args.userId}`,
+                    method: "GET",
+                }
+            },
             providesTags: ["message"],
             transformResponse: (response: TResponseRedux<any>) => {
                 return {
@@ -60,12 +63,15 @@ const message = baseApi.injectEndpoints({
         }),
 
         //-----------------Send Messages-----------------
-        SendMessages: builder.mutation({
-            query: (args) => ({
-                url: `/messages/send/${args.userID}`,
-                method: "POST",
-                body: args.data,
-            }),
+        sendMessages: builder.mutation({
+            query: (args) => {
+                console.log(args)
+                return {
+                    url: `/messages/send/${args.userId}`,
+                    method: "POST",
+                    body: args.data,
+                }
+            },
         }),
     }),
 });

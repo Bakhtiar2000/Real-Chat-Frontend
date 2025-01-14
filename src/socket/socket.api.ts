@@ -1,16 +1,20 @@
 import { io } from "socket.io-client";
-import { setOnlineUsers, setSocket, useCurrentUser, useSocket, clearSocket } from "../redux/features/auth/authSlice";
+import {
+    setOnlineUsers,
+    setSocket,
+    useCurrentUser,
+    useSocket,
+    clearSocket,
+} from "../redux/features/auth/authSlice";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { addMessage, setSelectedUser, useSelectedUser } from "../redux/features/message/messageSlice";
+import { addMessage, useSelectedUser } from "../redux/features/message/messageSlice";
 
-export const connectSocket = () => {
-    const dispatch = useAppDispatch();
-    const user = useAppSelector(useCurrentUser);
-    const socket = useAppSelector(useSocket);
-
+export const connectSocket = (dispatch, user, socket) => {
+    // const dispatch = useAppDispatch();
     if (!user || socket?.connected) return;
 
     const newSocket = io("http://localhost:5000", {
+        path: '/socket.io',
         query: {
             userId: user.userId,
         },
@@ -22,38 +26,32 @@ export const connectSocket = () => {
     newSocket.on("getOnlineUsers", (userIds) => {
         dispatch(setOnlineUsers({ onlineUsers: userIds }));
     });
+
+    newSocket.on("newMessage", (newMessage) => {
+        dispatch(addMessage({ messages: newMessage }));
+    });
 };
 
-export const disconnectSocket = () => {
-    const dispatch = useAppDispatch();
-    const socket = useAppSelector(useSocket);
-
+export const disconnectSocket = (dispatch, socket) => {
     if (socket?.connected) {
         socket.disconnect();
         dispatch(clearSocket());
     }
 };
 
-export const subscribeToMessages = () => {
-    const dispatch = useAppDispatch();
-    const selectedUser = useAppSelector(useSelectedUser);
-    const socket = useAppSelector(useSocket);
+export const subscribeToMessages = (dispatch, selectedUser, socket) => {
     if (!selectedUser || !socket) return;
 
     socket.on("newMessage", (newMessage) => {
         const isMessageSentFromSelectedUser = newMessage.senderId === selectedUser._id;
-        if (!isMessageSentFromSelectedUser) return;
-        else dispatch(addMessage({ messages: newMessage }));
+        if (isMessageSentFromSelectedUser) {
+            dispatch(addMessage({ messages: newMessage }));
+        }
     });
 };
 
-export const unsubscribeFromMessages = () => {
-    const socket = useAppSelector(useSocket);
+export const unsubscribeFromMessages = (socket) => {
     if (socket) {
         socket.off("newMessage");
     }
 };
-
-// export const setSelectedUserInStore = (selectedUser: any) => {
-//     dispatch(setSelectedUser(selectedUser));
-// };
