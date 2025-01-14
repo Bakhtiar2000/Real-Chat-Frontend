@@ -23,6 +23,9 @@ const messagesSlice = createSlice({
         setSelectedUser: (state, action) => {
             state.selectedUser = action.payload;
         },
+        removeSelectedUser: (state) => {
+            state.selectedUser = null;
+        },
         setMessages: (state, action) => {
             state.messages = action.payload;
         },
@@ -35,6 +38,7 @@ const messagesSlice = createSlice({
 export const {
     setUsers,
     setSelectedUser,
+    removeSelectedUser,
     setMessages,
     addMessage,
 } = messagesSlice.actions;

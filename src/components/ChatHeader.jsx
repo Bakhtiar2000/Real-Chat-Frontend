@@ -1,6 +1,6 @@
 import { X } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { setSelectedUser, useSelectedUser } from "../redux/features/message/messageSlice";
+import { removeSelectedUser, useSelectedUser } from "../redux/features/message/messageSlice";
 import { useOnlineUsers } from "../redux/features/auth/authSlice";
 
 const ChatHeader = () => {
@@ -31,7 +31,7 @@ const ChatHeader = () => {
         </div>
 
         {/* Close button */}
-        <button onClick={() => dispatch(setSelectedUser({ selectedUser: null }))}>
+        <button onClick={() => dispatch(removeSelectedUser)}>
           <X />
         </button>
       </div>
