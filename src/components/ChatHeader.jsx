@@ -1,15 +1,11 @@
 import { X } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { removeSelectedUser, useSelectedUser } from "../redux/features/message/messageSlice";
-import { useOnlineUsers } from "../redux/features/auth/authSlice";
+import { useAuthStore } from "../store/useAuthStore";
+import { useChatStore } from "../store/useChatStore";
 
 const ChatHeader = () => {
+  const { selectedUser, setSelectedUser } = useChatStore();
+  const { onlineUsers } = useAuthStore();
 
-  const dispatch = useAppDispatch()
-  const selectedUser = useAppSelector(useSelectedUser);
-  const onlineUsers = useAppSelector(useOnlineUsers);
-
-  console.log(selectedUser, onlineUsers)
   return (
     <div className="p-2.5 border-b border-base-300">
       <div className="flex items-center justify-between">
@@ -31,7 +27,7 @@ const ChatHeader = () => {
         </div>
 
         {/* Close button */}
-        <button onClick={() => dispatch(removeSelectedUser)}>
+        <button onClick={() => setSelectedUser(null)}>
           <X />
         </button>
       </div>

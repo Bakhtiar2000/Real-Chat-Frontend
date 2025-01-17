@@ -1,21 +1,14 @@
 import { useRef, useState } from "react";
+import { useChatStore } from "../store/useChatStore";
 import { Image, Send, X } from "lucide-react";
 import toast from "react-hot-toast";
-import { useGetMessagesQuery, useSendMessagesMutation } from "../redux/features/message/messageApi";
-import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { setMessages, useMessages, useSelectedUser } from "../redux/features/message/messageSlice";
 
 const MessageInput = () => {
   const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
-  // const { sendMessage } = useChatStore();
-  const [sendMessages] = useSendMessagesMutation();
-  const dispatch = useAppDispatch()
-  const selectedUser = useAppSelector(useSelectedUser);
-  const { data: messages, isLoading, isFetching } = useGetMessagesQuery({ userId: selectedUser.selectedUser._id });
+  const { sendMessage } = useChatStore();
 
-  console.log(selectedUser, messages)
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file.type.startsWith("image/")) {
@@ -39,25 +32,21 @@ const MessageInput = () => {
     e.preventDefault();
     if (!text.trim() && !imagePreview) return;
 
-    const messageData = {
-      userId: selectedUser.selectedUser._id,
-      data: {
+    try {
+      await sendMessage({
         text: text.trim(),
         image: imagePreview,
-      }
-    }
-    console.log(messageData)
-    try {
-      const res = (await sendMessages(messageData));
-      console.log(messages, res.data?.data)
-      dispatch(setMessages({ messages: [...(messages?.data), res.data?.data] }))
+      });
+
+      // Clear form
       setText("");
       setImagePreview(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (error) {
       console.error("Failed to send message:", error);
-    };
-  }
+    }
+  };
+
   return (
     <div className="p-4 w-full">
       {imagePreview && (

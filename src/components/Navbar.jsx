@@ -1,25 +1,9 @@
 import { Link } from "react-router-dom";
+import { useAuthStore } from "../store/useAuthStore";
 import { LogOut, MessageSquare } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { logout, useCurrentUser, useSocket } from "../redux/features/auth/authSlice";
-import { disconnectSocket } from "../socket/socket.api";
-import toast from "react-hot-toast";
-
 
 const Navbar = () => {
-  const dispatch = useAppDispatch();
-  const authUser = useAppSelector(useCurrentUser);
-  const socket = useAppSelector(useSocket);
-
-  const logoutUser = () => {
-    try {
-      dispatch(logout())
-      toast.success("Logged out successfully");
-      disconnectSocket(socket)
-    } catch (error) {
-      console.log(error)
-    }
-  }
+  const { logout, authUser } = useAuthStore();
 
   return (
     <header
@@ -38,13 +22,13 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            {
-              authUser &&
-              <button className="flex gap-2 items-center" onClick={logoutUser}>
+
+            {authUser && (
+              <button className="flex gap-2 items-center" onClick={logout}>
                 <LogOut className="size-5" />
                 <span className="hidden sm:inline">Logout</span>
               </button>
-            }
+            )}
           </div>
         </div>
       </div>
